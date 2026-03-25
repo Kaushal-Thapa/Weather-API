@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>College Management System</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      color: #333;
+    }
+
+    header {
+      background: #2c3e50;
+      color: white;
+      padding: 16px 24px;
+      font-size: 22px;
+      font-weight: bold;
+    }
+
+    .base-url-bar {
+      background: #ecf0f1;
+      padding: 8px 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .base-url-bar input {
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 5px 10px;
+      font-size: 13px;
+      width: 260px;
+    }
+
+    nav {
+      background: #34495e;
+      display: flex;
+      gap: 4px;
+      padding: 10px 24px;
+    }
+
+    nav button {
+      background: transparent;
+      color: #ccc;
+      border: none;
+      padding: 8px 16px;
+      cursor: pointer;
+      font-size: 14px;
+      border-radius: 4px;
+    }
+
+    nav button:hover { background: #4a6278; color: white; }
+    nav button.active { background: #2980b9; color: white; }
+
+    .container { max-width: 900px; margin: 30px auto; padding: 0 16px; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    h2 { font-size: 20px; margin-bottom: 6px; color: #2c3e50; }
+
+    .endpoint-label { font-size: 13px; color: #888; margin-bottom: 20px; }
+    .endpoint-label span { font-weight: bold; color: #2980b9; }
+
+    .card {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .form-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+
+    .field { display: flex; flex-direction: column; gap: 5px; flex: 1; min-width: 160px; }
+
+    label { font-size: 13px; font-weight: bold; color: #555; }
+
+    input {
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    input:focus { border-color: #2980b9; }
+    input[readonly] { background: #f5f5f5; color: #999; }
+
+    button {
+      padding: 9px 18px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .btn-blue   { background: #2980b9; color: white; }
+    .btn-blue:hover   { background: #2471a3; }
+    .btn-green  { background: #27ae60; color: white; }
+    .btn-green:hover  { background: #1e8449; }
+    .btn-yellow { background: #f39c12; color: white; }
+    .btn-yellow:hover { background: #d68910; }
+    .btn-red    { background: #e74c3c; color: white; }
+    .btn-red:hover    { background: #c0392b; }
+    .btn-gray   { background: #95a5a6; color: white; margin-left: 8px; }
+    .btn-gray:hover   { background: #7f8c8d; }
+
+    table { width: 100%; border-collapse: collapse; }
+
+    th, td {
+      padding: 11px 14px;
+      text-align: left;
+      font-size: 14px;
+      border-bottom: 1px solid #eee;
+    }
+
+    th { background: #ecf0f1; font-weight: bold; color: #555; }
+    tr:hover td { background: #f9f9f9; }
+
+    .action-btns { display: flex; gap: 6px; }
+
+    .btn-sm {
+      padding: 5px 10px;
+      font-size: 12px;
+      border-radius: 3px;
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-sm-edit { background: #f39c12; color: white; }
+    .btn-sm-del  { background: #e74c3c; color: white; }
+
+    .response {
+      margin-top: 14px;
+      padding: 12px;
+      border-radius: 4px;
+      font-size: 13px;
+      display: none;
+      white-space: pre-wrap;
+      font-family: monospace;
+    }
+
+    .response.success { background: #eafaf1; border: 1px solid #27ae60; color: #1e8449; }
+    .response.error   { background: #fdedec; border: 1px solid #e74c3c; color: #c0392b; }
+
+    #search { width: 100%; margin-bottom: 14px; }
+
+    .empty { text-align: center; padding: 30px; color: #aaa; font-size: 14px; }
+
+    .modal-bg {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-bg.open { display: flex; }
+
+    .modal {
+      background: white;
+      border-radius: 8px;
+      padding: 24px;
+      width: 420px;
+      max-width: 95vw;
+    }
+
+    .modal h3 { margin-bottom: 16px; font-size: 18px; color: #2c3e50; }
+    .modal-footer { margin-top: 14px; display: flex; gap: 8px; }
+  </style>
+</head>
+<body>
+
+<header>🎓 College Management System</header>
+
+<div class="base-url-bar">
+  <label for="baseUrl"><b>API Base URL:</b></label>
+  <input type="text" id="baseUrl" value="https://localhost:7001" />
+</div>
+
+<nav>
+  <button class="active" onclick="showSection('getall', this)">Get All</button>
+  <button onclick="showSection('getbyid', this)">Get By ID</button>
+  <button onclick="showSection('add', this)">Add Student</button>
+  <button onclick="showSection('update', this)">Update Student</button>
+  <button onclick="showSection('delete', this)">Delete Student</button>
+</nav>
+
+<div class="container">
+
+  <!-- GET ALL -->
+  <div class="section active" id="section-getall">
+    <h2>All Students</h2>
+    <p class="endpoint-label">GET &nbsp;<span>/api/student/getall</span></p>
+    <div class="card">
+      <button class="btn-blue" onclick="fetchAll()">Load Students</button>
+      <br><br>
+      <input type="text" id="search" placeholder="Search by name, ID or course..." oninput="filterTable()" />
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th><th>Name</th><th>Age</th><th>Course</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody id="students-tbody">
+          <tr><td colspan="5"><div class="empty">Click "Load Students" to fetch data</div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- GET BY ID -->
+  <div class="section" id="section-getbyid">
+    <h2>Get Student by ID</h2>
+    <p class="endpoint-label">GET &nbsp;<span>/api/student/{id}</span></p>
+    <div class="card">
+      <div class="form-row">
+        <div class="field">
+          <label>Student ID</label>
+          <input type="text" id="getbyid-id" placeholder="e.g. NP01MS7A240036" />
+        </div>
+      </div>
+      <button class="btn-blue" onclick="fetchById()">Search</button>
+      <div class="response" id="getbyid-res"></div>
+    </div>
+  </div>
+
+  <!-- ADD -->
+  <div class="section" id="section-add">
+    <h2>Add New Student</h2>
+    <p class="endpoint-label">POST &nbsp;<span>/api/student/add</span></p>
+    <div class="card">
+      <div class="form-row">
+        <div class="field">
+          <label>Student ID</label>
+          <input type="text" id="add-id" placeholder="NP01MS7A240036" />
+        </div>
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="add-name" placeholder="Alice Sharma" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Age</label>
+          <input type="number" id="add-age" placeholder="20" />
+        </div>
+        <div class="field">
+          <label>Course</label>
+          <input type="text" id="add-course" placeholder="Computer Science" />
+        </div>
+      </div>
+      <button class="btn-green" onclick="addStudent()">Add Student</button>
+      <button class="btn-gray" onclick="clearAdd()">Clear</button>
+      <div class="response" id="add-res"></div>
+    </div>
+  </div>
+
+  <!-- UPDATE -->
+  <div class="section" id="section-update">
+    <h2>Update Student</h2>
+    <p class="endpoint-label">PUT &nbsp;<span>/api/student/update</span></p>
+    <div class="card">
+      <div class="form-row">
+        <div class="field">
+          <label>Student ID to Load</label>
+          <input type="text" id="upd-lookup" placeholder="Enter ID then click Load" />
+        </div>
+      </div>
+      <button class="btn-gray" onclick="loadForUpdate()">Load Student</button>
+    </div>
+    <div class="card" id="update-form" style="display:none">
+      <div class="form-row">
+        <div class="field">
+          <label>Student ID</label>
+          <input type="text" id="upd-id" readonly />
+        </div>
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="upd-name" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Age</label>
+          <input type="number" id="upd-age" />
+        </div>
+        <div class="field">
+          <label>Course</label>
+          <input type="text" id="upd-course" />
+        </div>
+      </div>
+      <button class="btn-yellow" onclick="updateStudent()">Save Changes</button>
+      <div class="response" id="upd-res"></div>
+    </div>
+  </div>
+
+  <!-- DELETE -->
+  <div class="section" id="section-delete">
+    <h2>Delete Student</h2>
+    <p class="endpoint-label">DELETE &nbsp;<span>/api/student/delete/{id}</span></p>
+    <div class="card">
+      <div class="form-row">
+        <div class="field">
+          <label>Student ID</label>
+          <input type="text" id="del-id" placeholder="e.g. NP01MS7A240036" />
+        </div>
+      </div>
+      <button class="btn-red" onclick="deleteStudent()">Delete Student</button>
+      <div class="response" id="del-res"></div>
+    </div>
+  </div>
+
+</div>
+
+<!-- EDIT MODAL -->
+<div class="modal-bg" id="edit-modal">
+  <div class="modal">
+    <h3>✏️ Edit Student</h3>
+    <div class="form-row">
+      <div class="field">
+        <label>Student ID</label>
+        <input type="text" id="m-id" readonly />
+      </div>
+      <div class="field">
+        <label>Full Name</label>
+        <input type="text" id="m-name" />
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="field">
+        <label>Age</label>
+        <input type="number" id="m-age" />
+      </div>
+      <div class="field">
+        <label>Course</label>
+        <input type="text" id="m-course" />
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn-yellow" onclick="saveModal()">Save</button>
+      <button class="btn-gray" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let localData = [
+    { id: 'NP01MS7A240036', name: 'Alice Sharma', age: 20, course: 'Computer Science' },
+    { id: 'NP01MS7A240037', name: 'Bob Thapa',    age: 22, course: 'Mathematics' },
+    { id: 'NP01MS7A240038', name: 'Priya Gurung', age: 21, course: 'Physics' },
+  ];
+
+  let allStudents = [];
+
+  const baseUrl = () => document.getElementById('baseUrl').value.replace(/\/$/, '');
+
+  function showSection(name, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('section-' + name).classList.add('active');
+    btn.classList.add('active');
+  }
+
+  function showRes(id, data, ok) {
+    const el = document.getElementById(id);
+    el.textContent = JSON.stringify(data, null, 2);
+    el.className = 'response ' + (ok ? 'success' : 'error');
+    el.style.display = 'block';
+  }
+
+  async function apiCall(method, path, body) {
+    try {
+      const res = await fetch(baseUrl() + path, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: body ? JSON.stringify(body) : undefined
+      });
+      const data = await res.json().catch(() => ({ message: res.statusText }));
+      return { ok: res.ok, data };
+    } catch (e) {
+      return { ok: false, data: null };
+    }
+  }
+
+  // GET ALL
+  async function fetchAll() {
+    const res = await apiCall('GET', '/api/student/getall');
+    if (res.ok) {
+      allStudents = res.data;
+    } else {
+      allStudents = [...localData];
+      alert('API not reachable. Showing demo data.');
+    }
+    renderTable(allStudents);
+  }
+
+  function renderTable(students) {
+    const tbody = document.getElementById('students-tbody');
+    if (!students.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty">No students found.</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = students.map(s => `
+      <tr>
+        <td>${s.id}</td>
+        <td>${s.name}</td>
+        <td>${s.age}</td>
+        <td>${s.course}</td>
+        <td><div class="action-btns">
+          <button class="btn-sm btn-sm-edit" onclick='openModal(${JSON.stringify(s)})'>Edit</button>
+          <button class="btn-sm btn-sm-del"  onclick="quickDelete('${s.id}')">Delete</button>
+        </div></td>
+      </tr>`).join('');
+  }
+
+  function filterTable() {
+    const q = document.getElementById('search').value.toLowerCase();
+    renderTable(allStudents.filter(s =>
+      s.name.toLowerCase().includes(q) ||
+      s.id.toLowerCase().includes(q) ||
+      s.course.toLowerCase().includes(q)
+    ));
+  }
+
+  // GET BY ID
+  async function fetchById() {
+    const id = document.getElementById('getbyid-id').value.trim();
+    if (!id) return alert('Enter a Student ID.');
+    const res = await apiCall('GET', `/api/student/${id}`);
+    if (res.ok) {
+      showRes('getbyid-res', res.data, true);
+    } else {
+      const local = localData.find(s => s.id === id);
+      local ? showRes('getbyid-res', local, true)
+            : showRes('getbyid-res', { error: `Student '${id}' not found` }, false);
+    }
+  }
+
+  // ADD
+  async function addStudent() {
+    const student = {
+      id:     document.getElementById('add-id').value.trim(),
+      name:   document.getElementById('add-name').value.trim(),
+      age:    parseInt(document.getElementById('add-age').value),
+      course: document.getElementById('add-course').value.trim()
+    };
+    if (!student.id || !student.name || !student.age || !student.course)
+      return alert('All fields are required.');
+
+    const res = await apiCall('POST', '/api/student/add', student);
+    if (res.ok) {
+      showRes('add-res', res.data, true);
+    } else {
+      localData.push(student);
+      allStudents.push(student);
+      showRes('add-res', { message: 'Saved to demo data', student }, true);
+    }
+    clearAdd();
+  }
+
+  function clearAdd() {
+    ['add-id','add-name','add-age','add-course'].forEach(id =>
+      document.getElementById(id).value = '');
+  }
+
+  // UPDATE
+  async function loadForUpdate() {
+    const id = document.getElementById('upd-lookup').value.trim();
+    if (!id) return alert('Enter a Student ID.');
+    const res = await apiCall('GET', `/api/student/${id}`);
+    const s = res.ok ? res.data : localData.find(s => s.id === id);
+    if (!s) return alert('Student not found.');
+    document.getElementById('upd-id').value     = s.id;
+    document.getElementById('upd-name').value   = s.name;
+    document.getElementById('upd-age').value    = s.age;
+    document.getElementById('upd-course').value = s.course;
+    document.getElementById('update-form').style.display = 'block';
+  }
+
+  async function updateStudent() {
+    const student = {
+      id:     document.getElementById('upd-id').value,
+      name:   document.getElementById('upd-name').value.trim(),
+      age:    parseInt(document.getElementById('upd-age').value),
+      course: document.getElementById('upd-course').value.trim()
+    };
+    const res = await apiCall('PUT', '/api/student/update', student);
+    if (res.ok) {
+      showRes('upd-res', res.data, true);
+    } else {
+      const idx = localData.findIndex(s => s.id === student.id);
+      if (idx >= 0) { localData[idx] = student; allStudents[idx] = student; }
+      showRes('upd-res', { message: 'Updated in demo data', student }, true);
+    }
+  }
+
+  // DELETE
+  async function deleteStudent() {
+    const id = document.getElementById('del-id').value.trim();
+    if (!id) return alert('Enter a Student ID.');
+    if (!confirm(`Delete student ${id}?`)) return;
+    const res = await apiCall('DELETE', `/api/student/delete/${id}`);
+    if (res.ok) {
+      showRes('del-res', res.data, true);
+    } else {
+      const idx = localData.findIndex(s => s.id === id);
+      if (idx >= 0) { localData.splice(idx, 1); allStudents.splice(idx, 1); }
+      showRes('del-res', { message: `Student '${id}' deleted` }, true);
+    }
+    document.getElementById('del-id').value = '';
+  }
+
+  async function quickDelete(id) {
+    if (!confirm(`Delete student ${id}?`)) return;
+    await apiCall('DELETE', `/api/student/delete/${id}`);
+    const idx = localData.findIndex(s => s.id === id);
+    if (idx >= 0) localData.splice(idx, 1);
+    fetchAll();
+  }
+
+  // MODAL
+  function openModal(s) {
+    document.getElementById('m-id').value     = s.id;
+    document.getElementById('m-name').value   = s.name;
+    document.getElementById('m-age').value    = s.age;
+    document.getElementById('m-course').value = s.course;
+    document.getElementById('edit-modal').classList.add('open');
+  }
+
+  function closeModal() {
+    document.getElementById('edit-modal').classList.remove('open');
+  }
+
+  async function saveModal() {
+    const student = {
+      id:     document.getElementById('m-id').value,
+      name:   document.getElementById('m-name').value.trim(),
+      age:    parseInt(document.getElementById('m-age').value),
+      course: document.getElementById('m-course').value.trim()
+    };
+    await apiCall('PUT', '/api/student/update', student);
+    const idx = localData.findIndex(s => s.id === student.id);
+    if (idx >= 0) { localData[idx] = student; }
+    closeModal();
+    fetchAll();
+  }
+</script>
+</body>
+</html>
